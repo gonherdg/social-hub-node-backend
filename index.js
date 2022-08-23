@@ -7,14 +7,14 @@ import postRoutes from './routes/posts.js';
 
 const app = express();
 
-app.use('/posts', postRoutes);
-
 app.use(bodyParser.json({limit: "30mb", extended: true}));
 app.use(bodyParser.urlencoded({limit: "30mb", extended: true}));
 app.use(cors());
 
+app.use('/posts', postRoutes);
+
 // https://www.mongodb.com/cloud/atlas
-const CONNECTION_URL = "mongodb+srv://app-user:app-user@my-private-cluster.n1yoq.mongodb.net/?retryWrites=true&w=majority"
+const CONNECTION_URL = "mongodb+srv://app-user:app-user@my-private-cluster.n1yoq.mongodb.net/my-memories?retryWrites=true&w=majority"
 
 const PORT = process.env.PORT || 5000;
 
