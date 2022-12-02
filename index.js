@@ -16,8 +16,6 @@ app.use(cors());
 app.use("/posts", postRoutes);
 
 // https://www.mongodb.com/cloud/atlas
-const CONNECTION_URL =
-    "mongodb+srv://app-user:app-user@my-private-cluster.n1yoq.mongodb.net/my-memories?retryWrites=true&w=majority";
 
 const PORT = process.env.PORT || 5000;
 
