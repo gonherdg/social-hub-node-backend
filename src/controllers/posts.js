@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import PostMessage from "../models/postMessage.js";
+const mongoose = require("mongoose");
+const PostMessage = require("../models/postMessage.js");
 
-export const getPost = async (req, res) => {
+const getPost = async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -13,18 +13,22 @@ export const getPost = async (req, res) => {
     }
 };
 
-export const getPosts = async (req, res) => {
+const getPosts = async (req, res) => {
     const { page } = req.query;
-
+    console.log("--------------------------- GET POSTS ------------------");
     try {
         const LIMIT = 8;
         const startIndex = (Number(page) - 1) * LIMIT;
         const total = await PostMessage.countDocuments({});
 
-        const posts = await PostMessage.find()
+        console.log("BUSCANDO POSTS.....");
+
+        const posts = await PostMessage.find({}, { selectedFile: 0 })
             .sort({ _id: -1 })
             .limit(LIMIT)
             .skip(startIndex);
+
+        //console.log("POSTS: ", posts);
 
         res.status(200).json({
             data: posts,
@@ -32,20 +36,24 @@ export const getPosts = async (req, res) => {
             numberOfPages: Math.ceil(total / LIMIT),
         });
     } catch (error) {
+        console.log("GET POSTS CON ERROR!!");
         res.status(404).json({ message: error.message });
     }
 };
 
-export const getPostsBySearch = async (req, res) => {
+const getPostsBySearch = async (req, res) => {
     const { searchQuery, tags } = req.query;
 
     try {
         const title = new RegExp(searchQuery, "i");
         const splitTags = tags.split(",");
 
-        const posts = await PostMessage.find({
-            $or: [{ title }, { tags: { $in: splitTags } }],
-        });
+        const posts = await PostMessage.find(
+            {
+                $or: [{ title }, { tags: { $in: splitTags } }],
+            },
+            { selectedFile: 0 }
+        );
 
         res.json({ data: posts });
     } catch (error) {
@@ -54,7 +62,7 @@ export const getPostsBySearch = async (req, res) => {
     }
 };
 
-export const createPost = async (req, res) => {
+const createPost = async (req, res) => {
     const post = req.body;
     const newPost = new PostMessage({
         ...post,
@@ -70,7 +78,7 @@ export const createPost = async (req, res) => {
     }
 };
 
-export const updatePost = async (req, res) => {
+const updatePost = async (req, res) => {
     const { id: _id } = req.params;
     const post = req.body;
 
@@ -84,7 +92,7 @@ export const updatePost = async (req, res) => {
     res.status(200).json(updatedPost);
 };
 
-export const deletePost = async (req, res) => {
+const deletePost = async (req, res) => {
     const { id: _id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(_id))
         return res.status(404).send("No post with that id");
@@ -93,7 +101,7 @@ export const deletePost = async (req, res) => {
     res.json({ message: "Post deleted successfully" });
 };
 
-export const likePost = async (req, res) => {
+const likePost = async (req, res) => {
     const { id: _id } = req.params;
 
     if (!req.userId) return res.json({ message: "Unauthenticated" });
@@ -122,7 +130,7 @@ export const likePost = async (req, res) => {
     res.json(updatedPost);
 };
 
-export const commentPost = async (req, res) => {
+const commentPost = async (req, res) => {
     const { id } = req.params;
     const { value } = req.body;
 
@@ -135,4 +143,15 @@ export const commentPost = async (req, res) => {
     });
 
     res.json(updatedPost);
+};
+
+module.exports = {
+    getPost,
+    getPosts,
+    getPostsBySearch,
+    createPost,
+    updatePost,
+    deletePost,
+    likePost,
+    commentPost,
 };

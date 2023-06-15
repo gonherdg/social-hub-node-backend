@@ -1,11 +1,14 @@
-import express from "express";
-import bodyParser from "body-parser";
-import mongoose from "mongoose";
-import cors from "cors";
-import dotenv from "dotenv";
+// Imports
+const serverless = require("serverless-http");
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
 
-import postRoutes from "./routes/posts.js";
-import userRoutes from "./routes/users.js";
+const postRoutes = require("./src/routes/posts.js");
+const userRoutes = require("./src/routes/users.js");
+const testRoutes = require("./src/routes/tests.js");
 
 const app = express();
 dotenv.config();
@@ -16,9 +19,22 @@ app.use(cors());
 
 app.use("/posts", postRoutes);
 app.use("/user", userRoutes);
+app.use("/tests", testRoutes);
 
+// MongoDB connection:
+mongoose.connect(process.env.CONNECTION_URL, {
+    useNewUrlParser: true,
+});
+
+module.exports.handler = serverless(app);
+
+// For local test environment:
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
 // https://www.mongodb.com/cloud/atlas
 
+/*
+// Old connection:
 const PORT = process.env.PORT || 5000;
 
 mongoose
@@ -27,3 +43,5 @@ mongoose
         app.listen(PORT, () => console.log(`Server running on port: ${PORT}`))
     )
     .catch((error) => console.log(error.message));
+
+    */
