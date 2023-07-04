@@ -11,6 +11,9 @@ const userRoutes = require("./src/routes/users.js");
 const testRoutes = require("./src/routes/tests.js");
 
 const app = express();
+
+const development = true;
+
 dotenv.config();
 
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
@@ -33,8 +36,8 @@ module.exports.handler = serverless(app);
 // app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
 // https://www.mongodb.com/cloud/atlas
 
-/*
 // Old connection:
+if (!development) return;
 const PORT = process.env.PORT || 5000;
 
 mongoose
@@ -43,5 +46,3 @@ mongoose
         app.listen(PORT, () => console.log(`Server running on port: ${PORT}`))
     )
     .catch((error) => console.log(error.message));
-
-    */

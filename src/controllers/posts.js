@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const PostMessage = require("../models/postMessage.js");
+const { resize } = require("../utils/utils.js");
+const resizeHandler = require("../utils/resizeHandler.js");
 
 const getPost = async (req, res) => {
     const { id } = req.params;
@@ -23,12 +25,11 @@ const getPosts = async (req, res) => {
 
         console.log("BUSCANDO POSTS.....");
 
+        // const posts = await PostMessage.find({}, { selectedFile: 0 })
         const posts = await PostMessage.find({}, { selectedFile: 0 })
             .sort({ _id: -1 })
             .limit(LIMIT)
             .skip(startIndex);
-
-        //console.log("POSTS: ", posts);
 
         res.status(200).json({
             data: posts,
@@ -37,6 +38,7 @@ const getPosts = async (req, res) => {
         });
     } catch (error) {
         console.log("GET POSTS CON ERROR!!");
+        console.log(error);
         res.status(404).json({ message: error.message });
     }
 };
@@ -64,8 +66,21 @@ const getPostsBySearch = async (req, res) => {
 
 const createPost = async (req, res) => {
     const post = req.body;
+    // Create thumbnail:
+    console.log("POST: ", post);
+
+    const image = post.selectedFile;
+
+    const resizedImage = await resizeHandler.resize(image, 260, 260);
+
+    // Upload image to AWS-S3:
+    const bucket = process.env.BUCKET;
+    const thumbnailName = post.title;
+    //await resizeHandler.upload(image, thumbnailName, bucket);
+
     const newPost = new PostMessage({
         ...post,
+        thumbnail: resizedImage,
         creator: req.userId,
         createdAt: new Date().toISOString(),
     });

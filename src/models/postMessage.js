@@ -10,6 +10,7 @@ const postSchema = mongoose.Schema({
         default: [],
     },
     selectedFile: String,
+    thumbnail: String,
     likes: {
         type: [String],
         default: [],
