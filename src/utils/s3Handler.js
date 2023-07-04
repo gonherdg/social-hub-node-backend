@@ -1,5 +1,3 @@
-//import * as AWS from "aws-sdk";
-//import stream from "stream";
 const AWS = require("aws-sdk");
 const stream = require("stream");
 

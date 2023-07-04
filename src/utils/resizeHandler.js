@@ -1,18 +1,9 @@
 //import { s3Handler } from "./s3Handler";
-const { Pipes } = require("aws-sdk");
-const s3Handler = require("./s3Handler");
-const fs = require("fs");
-const path = require("path");
-
+const sharp = require("sharp");
 const AWS = require("aws-sdk");
-const stream = require("stream");
+
 AWS.config.region = "us-east-1";
 const s3 = new AWS.S3();
-
-const utils = require("./utils");
-
-//Core image processing package
-const sharp = require("sharp");
 
 class ResizerHandler {
     constructor() {}
@@ -20,34 +11,6 @@ class ResizerHandler {
     async _process(event) {
         const { size, image } = event.pathParameters;
         return await this.resize(size, image);
-    }
-
-    async resizeOLD(size, path, key) {
-        try {
-            const sizeArray = size.split("x");
-            const width = parseInt(sizeArray[0]);
-            const height = parseInt(sizeArray[1]);
-            const Key = key;
-            const newKey = "" + width + "x" + height + "/" + path;
-
-            const Bucket = process.env.BUCKET;
-            const streamResize = sharp().resize(width, height).toFormat("png");
-
-            //const readStream = s3Handler.readStream({ Bucket, Key });
-            const { writeStream, uploaded } = s3Handler.writeStream({
-                Bucket,
-                Key: key,
-            });
-
-            await uploaded;
-
-            console.log("Uploaded:", uploaded);
-            console.log("key:", key);
-
-            return key;
-        } catch (error) {
-            throw new Error(error);
-        }
     }
 
     async resize(image, width, height) {
